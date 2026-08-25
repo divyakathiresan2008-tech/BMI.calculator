@@ -1,9 +1,35 @@
 import { useState } from 'react';
-import { Activity, Trash2, Calculator, Scale, Ruler } from 'lucide-react';
+import {
+  Activity,
+  Trash2,
+  Calculator,
+  Scale,
+  Ruler,
+  Apple,
+  Dumbbell,
+  Moon,
+  Droplets,
+  Brain,
+  HeartPulse,
+  Salad,
+  Bike,
+  Wheat,
+  Soup,
+  ShieldCheck,
+} from 'lucide-react';
 
 type Category = {
   label: string;
   range: string;
+  color: string;
+  bg: string;
+  ring: string;
+};
+
+type Tip = {
+  icon: typeof Apple;
+  title: string;
+  text: string;
   color: string;
   bg: string;
   ring: string;
@@ -16,11 +42,59 @@ const CATEGORIES: Category[] = [
   { label: 'Obesity', range: '30 or above', color: 'text-rose-700', bg: 'bg-rose-50', ring: 'ring-rose-200' },
 ];
 
+const GENERAL_TIPS: Tip[] = [
+  { icon: Apple, title: 'Eat Balanced Meals', text: 'Fill half your plate with fruits and vegetables, a quarter with lean protein, and a quarter with whole grains.', color: 'text-rose-600', bg: 'bg-rose-50', ring: 'ring-rose-100' },
+  { icon: Dumbbell, title: 'Stay Active', text: 'Aim for at least 30 minutes of moderate exercise most days of the week.', color: 'text-blue-600', bg: 'bg-blue-50', ring: 'ring-blue-100' },
+  { icon: Moon, title: 'Sleep Well', text: 'Get 7–9 hours of quality sleep each night to support recovery and metabolism.', color: 'text-indigo-600', bg: 'bg-indigo-50', ring: 'ring-indigo-100' },
+  { icon: Droplets, title: 'Stay Hydrated', text: 'Drink plenty of water throughout the day — about 2 liters for most adults.', color: 'text-cyan-600', bg: 'bg-cyan-50', ring: 'ring-cyan-100' },
+  { icon: Brain, title: 'Manage Stress', text: 'Practice mindfulness, deep breathing, or hobbies to keep stress in check.', color: 'text-violet-600', bg: 'bg-violet-50', ring: 'ring-violet-100' },
+  { icon: HeartPulse, title: 'Limit Processed Foods', text: 'Reduce added sugars, excess sodium, and highly processed snacks.', color: 'text-emerald-600', bg: 'bg-emerald-50', ring: 'ring-emerald-100' },
+];
+
+const UNDERWEIGHT_TIPS: Tip[] = [
+  { icon: Wheat, title: 'Nutrient-Dense Foods', text: 'Choose calorie-rich, nutritious foods like nuts, avocados, whole grains, and healthy oils.', color: 'text-amber-600', bg: 'bg-amber-50', ring: 'ring-amber-100' },
+  { icon: Salad, title: 'Eat More Often', text: 'Add 5–6 smaller meals throughout the day instead of 3 large ones.', color: 'text-emerald-600', bg: 'bg-emerald-50', ring: 'ring-emerald-100' },
+  { icon: Dumbbell, title: 'Strength Training', text: 'Build muscle mass with resistance exercises 2–3 times per week.', color: 'text-blue-600', bg: 'bg-blue-50', ring: 'ring-blue-100' },
+  { icon: Soup, title: 'Protein at Every Meal', text: 'Include lean protein, eggs, dairy, or legumes to support healthy weight gain.', color: 'text-rose-600', bg: 'bg-rose-50', ring: 'ring-rose-100' },
+];
+
+const NORMAL_TIPS: Tip[] = [
+  { icon: Apple, title: 'Maintain Your Habits', text: 'Keep eating balanced meals and staying active to preserve your healthy weight.', color: 'text-emerald-600', bg: 'bg-emerald-50', ring: 'ring-emerald-100' },
+  { icon: Bike, title: 'Mix Up Your Activity', text: 'Combine cardio, strength, and flexibility work for well-rounded fitness.', color: 'text-blue-600', bg: 'bg-blue-50', ring: 'ring-blue-100' },
+  { icon: Moon, title: 'Prioritize Recovery', text: 'Rest days and good sleep are just as important as exercise.', color: 'text-indigo-600', bg: 'bg-indigo-50', ring: 'ring-indigo-100' },
+  { icon: ShieldCheck, title: 'Regular Check-ups', text: 'Keep up with routine health screenings even when you feel great.', color: 'text-teal-600', bg: 'bg-teal-50', ring: 'ring-teal-100' },
+];
+
+const OVERWEIGHT_TIPS: Tip[] = [
+  { icon: Apple, title: 'Watch Portions', text: 'Use smaller plates and be mindful of serving sizes to manage calories.', color: 'text-rose-600', bg: 'bg-rose-50', ring: 'ring-rose-100' },
+  { icon: Bike, title: 'Move More Daily', text: 'Aim for 150+ minutes of moderate activity per week — walking counts!', color: 'text-blue-600', bg: 'bg-blue-50', ring: 'ring-blue-100' },
+  { icon: Droplets, title: 'Swap Sugary Drinks', text: 'Replace soda and juice with water or unsweetened beverages.', color: 'text-cyan-600', bg: 'bg-cyan-50', ring: 'ring-cyan-100' },
+  { icon: Wheat, title: 'Choose Whole Foods', text: 'Focus on fiber-rich vegetables, whole grains, and lean proteins.', color: 'text-amber-600', bg: 'bg-amber-50', ring: 'ring-amber-100' },
+];
+
+const OBESITY_TIPS: Tip[] = [
+  { icon: ShieldCheck, title: 'Consult a Professional', text: 'Work with a doctor or dietitian to build a safe, personalized plan.', color: 'text-teal-600', bg: 'bg-teal-50', ring: 'ring-teal-100' },
+  { icon: Apple, title: 'Start with Small Changes', text: 'Gradually reduce portions and add more vegetables to every meal.', color: 'text-rose-600', bg: 'bg-rose-50', ring: 'ring-rose-100' },
+  { icon: Bike, title: 'Low-Impact Activity', text: 'Begin with walking, swimming, or cycling to protect your joints.', color: 'text-blue-600', bg: 'bg-blue-50', ring: 'ring-blue-100' },
+  { icon: Brain, title: 'Build Sustainable Habits', text: 'Focus on long-term lifestyle changes rather than quick fixes.', color: 'text-violet-600', bg: 'bg-violet-50', ring: 'ring-violet-100' },
+];
+
 function categorize(bmi: number): Category {
   if (bmi < 18.5) return CATEGORIES[0];
   if (bmi < 25) return CATEGORIES[1];
   if (bmi < 30) return CATEGORIES[2];
   return CATEGORIES[3];
+}
+
+function tipsForCategory(category: Category | null): Tip[] {
+  if (!category) return GENERAL_TIPS;
+  switch (category.label) {
+    case 'Underweight': return UNDERWEIGHT_TIPS;
+    case 'Normal weight': return NORMAL_TIPS;
+    case 'Overweight': return OVERWEIGHT_TIPS;
+    case 'Obesity': return OBESITY_TIPS;
+    default: return GENERAL_TIPS;
+  }
 }
 
 function App() {
@@ -50,6 +124,10 @@ function App() {
   };
 
   const category = bmi !== null ? categorize(bmi) : null;
+  const tips = tipsForCategory(category);
+  const tipsHeading = category
+    ? `Tips for ${category.label}`
+    : 'Healthy Lifestyle Tips';
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-emerald-50 flex items-center justify-center p-4 sm:p-6">
@@ -146,6 +224,33 @@ function App() {
                     <p className="text-[11px] text-slate-500">{c.range}</p>
                   </div>
                 ))}
+              </div>
+            </div>
+
+            {/* Healthy Lifestyle Tips */}
+            <div className="pt-3 border-t border-slate-100">
+              <div className="flex items-center gap-2 mb-3">
+                <HeartPulse className="w-4 h-4 text-emerald-600" />
+                <h2 className="text-sm font-semibold text-slate-700">{tipsHeading}</h2>
+              </div>
+              <div className="space-y-2.5">
+                {tips.map((tip) => {
+                  const Icon = tip.icon;
+                  return (
+                    <div
+                      key={tip.title}
+                      className={`flex gap-3 ${tip.bg} rounded-xl p-3 ring-1 ${tip.ring} transition hover:shadow-sm`}
+                    >
+                      <div className={`shrink-0 ${tip.bg} rounded-lg p-2 ring-1 ${tip.ring}`}>
+                        <Icon className={`w-5 h-5 ${tip.color}`} />
+                      </div>
+                      <div>
+                        <p className={`text-sm font-semibold ${tip.color}`}>{tip.title}</p>
+                        <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">{tip.text}</p>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
